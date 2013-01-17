@@ -8,10 +8,12 @@ Usage:
     reddit_img_downloader.py <subreddit> ... [--hot|--new|--rising] [--nsfw]
                                 [--limit=<n>] [--size=<img_size>]
                                 [--reddit_name|--reddit_over_id]
+                                [--savedir=<n>]
     reddit_img_downloader.py <subreddit> ... (--top|--controversial) [--nsfw]
                                 [--limit=<n>] [--time=<period>]
                                 [--size=<img_size>]
                                 [--reddit_name|--reddit_over_id]
+                                [--savedir=<n>]
 
 Options:
  -h --help          Show help screen.
@@ -24,13 +26,15 @@ Options:
  --top              Get the top images from subreddit.
  --nsfw             Allow download of NSFW images.
  --limit=<n>        The number of images to download [default: 25].
- --time=<th>        The time period to look at [default: day].
+ --time=<period>    The time period to look at [default: day].
  --size=<img_size>  The size of the images to download [default: original].
  --reddit_name      Always set the name to the reddit title
  --reddit_over_id   Set name to reddit title, if image is untitled on imgur.
+ --savedir=<n>      The directory downloaded files will be saved to [default 25]
 
 """
 
+import shutil
 import os
 from urlparse import urlparse
 
@@ -47,6 +51,10 @@ def main(arguments):
                           arguments['--rising'], arguments['--controversial'],
                           arguments['--top'])
     params = {'t': arguments['--time']}
+    if arguments['--savedir'] is None:
+        save_path = os.path.abspath('.')
+    else:
+        save_path = os.path.abspath(arguments['--savedir'])
     for sub in listing(limit=int(arguments['--limit']), url_data=params):
         if sub.is_self or 'imgur.com' not in sub.domain:
             continue
@@ -58,9 +66,17 @@ def main(arguments):
         new_image = pyimgur.download_image(img_hash, size=arguments['--size'])
         if arguments['--reddit_name'] or ((new_image.startswith(img_hash)
                                       and arguments['--reddit_over_id'])):
-            new_name = sub.title + '.' + new_image.split('.')[-1]
+            title = sanitize(sub.title)
+            new_name = title + '.' + new_image.split('.')[-1]
+            new_name = os.path.join(save_path, new_name)
             if not os.path.exists(new_name):
                 os.rename(new_image, new_name)
+        else:
+            new_name = os.path.join(save_path, new_image)
+            shutil.move(new_image, new_name)
+
+def sanitize(title):
+    return title.encode('ascii', 'ignore').replace('"', '')
 
 def make_multireddit(subreddit_list):
     return "+".join(subreddit_list)
