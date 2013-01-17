@@ -63,7 +63,12 @@ def main(arguments):
         if is_album(sub.url):  # Temporary. This should be handled by pyimgur
             continue
         img_hash = get_img_hash(sub.url)
-        new_image = pyimgur.download_image(img_hash, size=arguments['--size'])
+        try:
+            new_image = pyimgur.download_image(img_hash,
+                                               size=arguments['--size'])
+        except pyimgur.errors.Code404:
+            continue
+
         if arguments['--reddit_name'] or ((new_image.startswith(img_hash)
                                       and arguments['--reddit_over_id'])):
             title = sanitize(sub.title)
