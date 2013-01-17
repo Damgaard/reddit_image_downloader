@@ -4,35 +4,39 @@ Simplifies downloading images from subreddits.
 
 # Usage
 
-reddit\_imag\_downloader.py -h | --help
-reddit\_imag\_downloader.py [--hot|--new|--rising] [--nsfw] [--limit=<n>]
-reddit\_imag\_downloader.py [--top|--controversial] [--nsfw] [--limit=<n>]
-                            [--hour|--day|--week|--month|--year|--year]
+reddit\_img\_downloader.py -h | --help
+reddit\_img\_downloader.py --gui
+reddit\_img\_downloader.py <subreddit> ... [--hot|--new|--rising] [--nsfw]
+                            [--limit=<n>] [--size=<img_size>]
+                            [--reddit_name|--reddit_over_id]
+                            [--savedir=<n>]
+reddit\_img\_downloader.py <subreddit> ... (--top|--controversial) [--nsfw]
+                            [--limit=<n>] [--time=<period>]
+                            [--size=<img_size>]
+                            [--reddit_name|--reddit_over_id]
+                            [--savedir=<n>]
 
 **options**
-
  -h --help          Show help screen.
- --limit            The number of images to download.
- --nsfw             Download NSFW images.
- -s --subreddit     The subreddit to download images from.
+ --gui              Launch GUI instead of CLI.
+ --subreddit        The subreddit(s) to download images from.
  --hot              Get the hottest images (default) from the subreddit.
  --new              Get the newest images from the subreddit.
  --rising           Get the rising images from the subreddit.
  --controversial    Get the controversial images from the subreddit.
  --top              Get the top images from subreddit.
- --hour             Get the images from the last hour.
- --day              Get the images from the last day.
- --week             Get the images from the last week.
- --month            Get the images from the last month.
- --year             Get the images from the last year.
- --all              Get the images from all time.
+ --nsfw             Allow download of NSFW images.
+ --limit=<n>        The number of images to download [default: 25].
+ --time=<period>    The time period to look at [default: day].
+ --size=<img_size>  The size of the images to download [default: original].
+ --reddit\_name      Always set the name to the reddit title
+ --reddit\_over\_id   Set name to reddit title, if image is untitled on imgur.
+ --savedir=<n>      The directory downloaded files will be saved to [default 25]
 
 # Dependencies
 
 docopt, praw and pyimgur. Install them with pip
 
 ```python
-pip install docopt
-pip install praw
-pip install pyimgur
+pip install docopt, praw, pyimgur
 ```

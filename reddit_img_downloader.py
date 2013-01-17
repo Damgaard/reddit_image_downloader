@@ -1,10 +1,12 @@
+#!/usr/bin/python
+
 """Reddit img downloader
 
 Downloads images from a subreddit.
 
 Usage:
     reddit_img_downloader.py -h | --help
-    reddit_img_downloader.py -gui
+    reddit_img_downloader.py --gui
     reddit_img_downloader.py <subreddit> ... [--hot|--new|--rising] [--nsfw]
                                 [--limit=<n>] [--size=<img_size>]
                                 [--reddit_name|--reddit_over_id]
@@ -47,9 +49,8 @@ def main(arguments):
     subreddit_name = make_multireddit(arguments['<subreddit>'])
     subreddit = r.get_subreddit(subreddit_name)
     test_valid_subreddit(subreddit)
-    listing = get_listing(subreddit, arguments['--hot'], arguments['--new'],
-                          arguments['--rising'], arguments['--controversial'],
-                          arguments['--top'])
+    listing = get_listing(subreddit, arguments['--new'], arguments['--rising'],
+                          arguments['--controversial'], arguments['--top'])
     params = {'t': arguments['--time']}
     if arguments['--savedir'] is None:
         save_path = os.path.abspath('.')
@@ -68,35 +69,39 @@ def main(arguments):
                                                size=arguments['--size'])
         except pyimgur.errors.Code404:
             continue
-
         if arguments['--reddit_name'] or ((new_image.startswith(img_hash)
                                       and arguments['--reddit_over_id'])):
             title = sanitize(sub.title)
             new_name = title + '.' + new_image.split('.')[-1]
             new_name = os.path.join(save_path, new_name)
             if not os.path.exists(new_name):
-                os.rename(new_image, new_name)
+                shutil.move(new_image, new_name)
         else:
             new_name = os.path.join(save_path, new_image)
-            shutil.move(new_image, new_name)
+            if not os.path.exists(new_name):
+                shutil.move(new_image, new_name)
 
 def sanitize(title):
-    return title.encode('ascii', 'ignore').replace('"', '')
+    """Sanitize the title to become part of a valid filename."""
+    only_ascii = title.encode('ascii', 'ignore')
+    no_bad_char = "".join(ch for ch in only_ascii if ch not in '"?')
+    return no_bad_char.strip()
 
 def make_multireddit(subreddit_list):
+    """Return the name of the multireddit for the subreddits given."""
     return "+".join(subreddit_list)
 
 def test_valid_subreddit(subreddit):
     """Test that the subreddit is valid, neccesary due to lazy evaluation."""
     try:
         subreddit.get_hot().next()
-    except ValueError as e:
-        if e.message == 'No JSON object could be decoded':
+    except ValueError as error:
+        if error.message == 'No JSON object could be decoded':
             raise ValueError('Invalid subreddit.')
         raise
 
-def get_listing(subreddit, is_hot, is_new, is_rising, is_controversial,
-                is_top):
+def get_listing(subreddit, is_new, is_rising, is_controversial, is_top):
+    """Return the subreddit listing with the requested form of sorting."""
     if is_new:
         return subreddit.get_new_by_date
     elif is_rising:
@@ -109,9 +114,11 @@ def get_listing(subreddit, is_hot, is_new, is_rising, is_controversial,
         return subreddit.get_hot
 
 def is_album(url):
+    """Does the url point to an imgur album rather than an image?"""
     return urlparse(url).fragment
 
 def get_img_hash(url):
+    """Return the img_hash from the url."""
     return urlparse(url).path.split('/')[-1].split('.')[0]
 
 def test_valid_arguments(arguments):
