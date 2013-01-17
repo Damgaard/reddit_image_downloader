@@ -4,13 +4,13 @@ Simplifies downloading images from subreddits.
 
 # Usage
 
-reddit\_img\_downloader.py -h | --help
-reddit\_img\_downloader.py --gui
-reddit\_img\_downloader.py <subreddit> ... [--hot|--new|--rising] [--nsfw]
+reddit\_image\_downloader.py -h | --help
+reddit\_image\_downloader.py --gui
+reddit\_image\_downloader.py <subreddit> ... [--hot|--new|--rising] [--nsfw]
                             [--limit=<n>] [--size=<img_size>]
                             [--reddit_name|--reddit_over_id]
                             [--savedir=<n>]
-reddit\_img\_downloader.py <subreddit> ... (--top|--controversial) [--nsfw]
+reddit\_image\_downloader.py <subreddit> ... (--top|--controversial) [--nsfw]
                             [--limit=<n>] [--time=<period>]
                             [--size=<img_size>]
                             [--reddit_name|--reddit_over_id]

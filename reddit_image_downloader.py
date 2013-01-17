@@ -15,18 +15,18 @@
 # You should have received a copy of the GNU General Public License along with
 # reddit image downloader.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Reddit img downloader
+"""Reddit image downloader
 
 Downloads images from a subreddit.
 
 Usage:
-    reddit_img_downloader.py -h | --help
-    reddit_img_downloader.py --gui
-    reddit_img_downloader.py <subreddit> ... [--hot|--new|--rising] [--nsfw]
+    reddit_image_downloader.py -h | --help
+    reddit_image_downloader.py --gui
+    reddit_image_downloader.py <subreddit> ... [--hot|--new|--rising] [--nsfw]
                                 [--limit=<n>] [--size=<img_size>]
                                 [--reddit_name|--reddit_over_id]
                                 [--savedir=<n>]
-    reddit_img_downloader.py <subreddit> ... (--top|--controversial) [--nsfw]
+    reddit_image_downloader.py <subreddit> ... (--top|--controversial) [--nsfw]
                                 [--limit=<n>] [--time=<period>]
                                 [--size=<img_size>]
                                 [--reddit_name|--reddit_over_id]
@@ -60,7 +60,7 @@ import praw
 import pyimgur
 
 def main(arguments):
-    r = praw.Reddit('Reddit img downloader by u/_Daimon_ ver 0.1')
+    r = praw.Reddit('Reddit image downloader by u/_Daimon_ ver 0.1')
     subreddit_name = make_multireddit(arguments['<subreddit>'])
     subreddit = r.get_subreddit(subreddit_name)
     test_valid_subreddit(subreddit)
@@ -146,7 +146,7 @@ def test_valid_arguments(arguments):
                               % (option, " ".join(valid_options[option])))
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version='Reddit img downloader 0.1')
+    arguments = docopt(__doc__, version='Reddit image downloader 0.1')
     test_valid_arguments(arguments)
     print arguments
     main(arguments)
