@@ -65,10 +65,10 @@ from view import Terminal
 def main():
     arguments = docopt(__doc__, version='Reddit image downloader 0.1')
     test_valid_arguments(arguments)
-    terminal_view = Terminal(arguments, image_downloader)
+    terminal_view = Terminal(arguments, download_images)
 
 
-def image_downloader(arguments, view):
+def download_images(arguments, view):
     """Downloads the images from the subreddits."""
     r = praw.Reddit('Reddit image downloader by u/_Daimon_ ver 0.1')
     subreddit_name = make_multireddit(arguments['<subreddit>'])
@@ -82,11 +82,7 @@ def image_downloader(arguments, view):
     else:
         save_path = os.path.abspath(arguments['--savedir'])
     for sub in listing(limit=int(arguments['--limit']), url_data=params):
-        if sub.is_self or 'imgur.com' not in sub.domain:
-            continue
-        if sub.over_18 and not arguments['--nsfw']:
-            continue
-        if is_album(sub.url):  # Temporary. This should be handled by pyimgur
+        if not can_be_processed(sub, arguments, view):
             continue
         img_hash = get_img_hash(sub.url)
         try:
@@ -105,6 +101,19 @@ def image_downloader(arguments, view):
             new_name = os.path.join(save_path, new_image)
             if not os.path.exists(new_name):
                 shutil.move(new_image, new_name)
+
+def can_be_processed(submission, arguments, view):
+    """Is this a image post we can process?"""
+    if submission.is_self or 'imgur.com' not in submission.domain:
+        view.not_imgur_domain(submission)
+    elif submission.over_18 and not arguments['--nsfw']:
+        view.nsfw_submission(submission)
+    elif is_album(submission.url):  # Temporary. Should be handled by pyimgur
+        view.links_to_album(submission)
+    else:
+        view.valid_submission(submission)
+        return True
+    return False
 
 def sanitize(title):
     """Sanitize the title to become part of a valid filename."""
