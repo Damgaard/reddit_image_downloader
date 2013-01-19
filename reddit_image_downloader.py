@@ -59,7 +59,17 @@ from docopt import docopt
 import praw
 import pyimgur
 
-def main(arguments):
+from view import Terminal
+
+
+def main():
+    arguments = docopt(__doc__, version='Reddit image downloader 0.1')
+    test_valid_arguments(arguments)
+    terminal_view = Terminal(arguments, image_downloader)
+
+
+def image_downloader(arguments, view):
+    """Downloads the images from the subreddits."""
     r = praw.Reddit('Reddit image downloader by u/_Daimon_ ver 0.1')
     subreddit_name = make_multireddit(arguments['<subreddit>'])
     subreddit = r.get_subreddit(subreddit_name)
@@ -146,7 +156,4 @@ def test_valid_arguments(arguments):
                               % (option, " ".join(valid_options[option])))
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version='Reddit image downloader 0.1')
-    test_valid_arguments(arguments)
-    print arguments
-    main(arguments)
+    main()
