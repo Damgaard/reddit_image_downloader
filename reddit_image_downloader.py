@@ -61,9 +61,13 @@ import pyimgur
 
 from view import Terminal
 
+# The maximum amount of submissions that can retrieved from Reddit.com
+MAX_SUBMISSIONS = 1000
+
 
 def main():
     arguments = docopt(__doc__, version='Reddit image downloader 0.1')
+    process_arguments(arguments)
     test_valid_arguments(arguments)
     Terminal(arguments, download_images)
     # The view is responsible for running download_images when it wants.
@@ -80,11 +84,7 @@ def download_images(arguments, view):
     listing = get_listing(subreddit, arguments['--new'], arguments['--rising'],
                           arguments['--controversial'], arguments['--top'])
     params = {'t': arguments['--time']}
-    if arguments['--savedir'] is None:
-        save_path = os.path.abspath('.')
-    else:
-        save_path = os.path.abspath(arguments['--savedir'])
-    for sub in listing(limit=int(arguments['--limit']), url_data=params):
+    for sub in listing(limit=arguments['--limit'], url_data=params):
         if not can_be_processed(sub, arguments, view):
             continue
         img_hash = get_img_hash(sub.url)
@@ -97,11 +97,11 @@ def download_images(arguments, view):
                                            and arguments['--reddit_over_id'])):
             title = sanitize(sub.title)
             new_name = title + '.' + new_image.split('.')[-1]
-            new_name = os.path.join(save_path, new_name)
+            new_name = os.path.join(arguments['--savedir'], new_name)
             if not os.path.exists(new_name):
                 shutil.move(new_image, new_name)
         else:
-            new_name = os.path.join(save_path, new_image)
+            new_name = os.path.join(arguments['--savedir'], new_image)
             if not os.path.exists(new_name):
                 shutil.move(new_image, new_name)
 
@@ -164,6 +164,18 @@ def is_album(url):
 def get_img_hash(url):
     """Return the img_hash from the url."""
     return urlparse(url).path.split('/')[-1].split('.')[0]
+
+
+def process_arguments(arguments):
+    """Process the arguments, so they can be used."""
+    arguments['--time'] = arguments['--time'].lower()
+    arguments['--size'] = arguments['--size'].lower()
+    if arguments['--limit'].lower() == 'none':
+        arguments['--limit'] = MAX_SUBMISSIONS
+    else:
+        arguments['--limit'] = int(arguments['--limit'])
+    if arguments['--savedir'] is None:
+        arguments['--savedir'] = os.path.abspath('.')
 
 
 def test_valid_arguments(arguments):
