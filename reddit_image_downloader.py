@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf8 -*-
 #
 # This file is part of reddit image downloader.
 #
@@ -92,9 +93,8 @@ def download_images(arguments, view):
             continue
         if arguments['--reddit_name'] or ((new_image.startswith(img_hash)
                                            and arguments['--reddit_over_id'])):
-            title = sanitize(sub.title)
-            new_name = title + '.' + new_image.split('.')[-1]
-            new_name = os.path.join(arguments['--savedir'], new_name)
+            new_image = rename_image(new_image, sub)
+            new_name = os.path.join(arguments['--savedir'], new_image)
             if not os.path.exists(new_name):
                 shutil.move(new_image, new_name)
         else:
@@ -123,13 +123,6 @@ def can_be_processed(submission, arguments, view):
         view.valid_submission(submission)
         return True
     return False
-
-
-def sanitize(title):
-    """Sanitize the title to become part of a valid filename."""
-    only_ascii = title.encode('ascii', 'ignore')
-    no_bad_char = "".join(ch for ch in only_ascii if ch not in '"?')
-    return no_bad_char.strip()
 
 
 def test_valid_subreddit(subreddit):
@@ -164,6 +157,18 @@ def is_album(url):
 def get_img_hash(url):
     """Return the img_hash from the url."""
     return urlparse(url).path.split('/')[-1].split('.')[0]
+
+
+def rename_image(image, submission):
+    """Rename the image to a sanitized version of the submission title."""
+    bad_chars = "/?<>\:*|”"
+    max_macOS9_file_length = 31
+    only_ascii = submission.title.encode('ascii', 'ignore')
+    no_bad_chars = "".join(ch for ch in only_ascii if ch not in bad_chars)
+    file_name = no_bad_chars.strip()[:max_macOS9_file_length]
+    new_name = file_name + '.' + image.split('.')[-1]
+    os.rename(image, new_name)
+    return new_name
 
 
 def process_arguments(arguments):
