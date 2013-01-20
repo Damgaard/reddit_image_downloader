@@ -78,9 +78,7 @@ def main():
 def download_images(arguments, view):
     """Downloads the images from the subreddits."""
     reddit = praw.Reddit('Reddit image downloader by u/_Daimon_ ver 0.1')
-    subreddit_name = make_multireddit(arguments['<subreddit>'])
-    subreddit = reddit.get_subreddit(subreddit_name)
-    test_valid_subreddit(subreddit)
+    subreddit = get_subreddit(reddit, arguments)
     listing = get_listing(subreddit, arguments['--new'], arguments['--rising'],
                           arguments['--controversial'], arguments['--top'])
     params = {'t': arguments['--time']}
@@ -106,6 +104,14 @@ def download_images(arguments, view):
                 shutil.move(new_image, new_name)
 
 
+def get_subreddit(reddit, arguments):
+    """Return the subreddit object. Raise error if invalid arguments."""
+    subreddit_name = "+".join(arguments['<subreddit>'])
+    subreddit = reddit.get_subreddit(subreddit_name)
+    test_valid_subreddit(subreddit)
+    return subreddit
+
+
 def can_be_processed(submission, arguments, view):
     """Is this a image post we can process?"""
     if submission.is_self or 'imgur.com' not in submission.domain:
@@ -125,11 +131,6 @@ def sanitize(title):
     only_ascii = title.encode('ascii', 'ignore')
     no_bad_char = "".join(ch for ch in only_ascii if ch not in '"?')
     return no_bad_char.strip()
-
-
-def make_multireddit(subreddit_list):
-    """Return the name of the multireddit for the subreddits given."""
-    return "+".join(subreddit_list)
 
 
 def test_valid_subreddit(subreddit):
