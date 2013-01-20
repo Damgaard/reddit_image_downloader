@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # This file is part of reddit image downloader.
 #
@@ -47,7 +47,7 @@ Options:
  --size=<img_size>  The size of the images to download [default: original].
  --reddit_name      Always set the name to the reddit title
  --reddit_over_id   Set name to reddit title, if image is untitled on imgur.
- --savedir=<n>      The directory downloaded files will be saved to [default 25]
+ --savedir=<n>      The directory to save downloaded files in [default 25]
 
 """
 
@@ -65,14 +65,17 @@ from view import Terminal
 def main():
     arguments = docopt(__doc__, version='Reddit image downloader 0.1')
     test_valid_arguments(arguments)
-    terminal_view = Terminal(arguments, download_images)
+    Terminal(arguments, download_images)
+    # The view is responsible for running download_images when it wants.
+    # Terminal simply runs it upon the end of initialization, but a GUI could
+    # choose to first run the function when a user clicks a "run" button.
 
 
 def download_images(arguments, view):
     """Downloads the images from the subreddits."""
-    r = praw.Reddit('Reddit image downloader by u/_Daimon_ ver 0.1')
+    reddit = praw.Reddit('Reddit image downloader by u/_Daimon_ ver 0.1')
     subreddit_name = make_multireddit(arguments['<subreddit>'])
-    subreddit = r.get_subreddit(subreddit_name)
+    subreddit = reddit.get_subreddit(subreddit_name)
     test_valid_subreddit(subreddit)
     listing = get_listing(subreddit, arguments['--new'], arguments['--rising'],
                           arguments['--controversial'], arguments['--top'])
@@ -91,7 +94,7 @@ def download_images(arguments, view):
         except pyimgur.errors.Code404:
             continue
         if arguments['--reddit_name'] or ((new_image.startswith(img_hash)
-                                      and arguments['--reddit_over_id'])):
+                                           and arguments['--reddit_over_id'])):
             title = sanitize(sub.title)
             new_name = title + '.' + new_image.split('.')[-1]
             new_name = os.path.join(save_path, new_name)
@@ -101,6 +104,7 @@ def download_images(arguments, view):
             new_name = os.path.join(save_path, new_image)
             if not os.path.exists(new_name):
                 shutil.move(new_image, new_name)
+
 
 def can_be_processed(submission, arguments, view):
     """Is this a image post we can process?"""
@@ -115,15 +119,18 @@ def can_be_processed(submission, arguments, view):
         return True
     return False
 
+
 def sanitize(title):
     """Sanitize the title to become part of a valid filename."""
     only_ascii = title.encode('ascii', 'ignore')
     no_bad_char = "".join(ch for ch in only_ascii if ch not in '"?')
     return no_bad_char.strip()
 
+
 def make_multireddit(subreddit_list):
     """Return the name of the multireddit for the subreddits given."""
     return "+".join(subreddit_list)
+
 
 def test_valid_subreddit(subreddit):
     """Test that the subreddit is valid, neccesary due to lazy evaluation."""
@@ -133,6 +140,7 @@ def test_valid_subreddit(subreddit):
         if error.message == 'No JSON object could be decoded':
             raise ValueError('Invalid subreddit.')
         raise
+
 
 def get_listing(subreddit, is_new, is_rising, is_controversial, is_top):
     """Return the subreddit listing with the requested form of sorting."""
@@ -147,13 +155,16 @@ def get_listing(subreddit, is_new, is_rising, is_controversial, is_top):
     else:
         return subreddit.get_hot
 
+
 def is_album(url):
     """Does the url point to an imgur album rather than an image?"""
     return urlparse(url).fragment
 
+
 def get_img_hash(url):
     """Return the img_hash from the url."""
     return urlparse(url).path.split('/')[-1].split('.')[0]
+
 
 def test_valid_arguments(arguments):
     """Test that argument values are valid, if not raise LookupError."""
@@ -163,6 +174,7 @@ def test_valid_arguments(arguments):
         if arguments['--%s' % option] not in valid_options[option]:
             raise LookupError("%s must have one of the following values: %s"
                               % (option, " ".join(valid_options[option])))
+
 
 if __name__ == '__main__':
     main()
