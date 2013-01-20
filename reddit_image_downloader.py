@@ -94,13 +94,7 @@ def download_images(arguments, view):
         if arguments['--reddit_name'] or ((new_image.startswith(img_hash)
                                            and arguments['--reddit_over_id'])):
             new_image = rename_image(new_image, sub)
-            new_name = os.path.join(arguments['--savedir'], new_image)
-            if not os.path.exists(new_name):
-                shutil.move(new_image, new_name)
-        else:
-            new_name = os.path.join(arguments['--savedir'], new_image)
-            if not os.path.exists(new_name):
-                shutil.move(new_image, new_name)
+        move_image(new_image, arguments)
 
 
 def get_subreddit(reddit, arguments):
@@ -169,6 +163,14 @@ def rename_image(image, submission):
     new_name = file_name + '.' + image.split('.')[-1]
     os.rename(image, new_name)
     return new_name
+
+
+def move_image(new_image, arguments):
+    """Move the new_image to savedir, do not overwrite existing files."""
+    if os.getcwd() != arguments['--savedir']:
+        new_name = os.path.join(arguments['--savedir'], new_image)
+        if not os.path.exists(new_name):
+            shutil.move(new_image, new_name)
 
 
 def process_arguments(arguments):
