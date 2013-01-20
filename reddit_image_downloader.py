@@ -79,8 +79,7 @@ def download_images(arguments, view):
     """Downloads the images from the subreddits."""
     reddit = praw.Reddit('Reddit image downloader by u/_Daimon_ ver 0.1')
     subreddit = get_subreddit(reddit, arguments)
-    listing = get_listing(subreddit, arguments['--new'], arguments['--rising'],
-                          arguments['--controversial'], arguments['--top'])
+    listing = get_listing(subreddit, arguments)
     params = {'t': arguments['--time']}
     for sub in listing(limit=arguments['--limit'], url_data=params):
         if not can_be_processed(sub, arguments, view):
@@ -143,15 +142,15 @@ def test_valid_subreddit(subreddit):
         raise
 
 
-def get_listing(subreddit, is_new, is_rising, is_controversial, is_top):
+def get_listing(subreddit, arguments):
     """Return the subreddit listing with the requested form of sorting."""
-    if is_new:
+    if arguments['--new']:
         return subreddit.get_new_by_date
-    elif is_rising:
+    elif arguments['--rising']:
         return subreddit.get_new_by_rising
-    elif is_controversial:
+    elif arguments['--controversial']:
         return subreddit.get_controversial
-    elif is_top:
+    elif arguments['--top']:
         return subreddit.get_top
     else:
         return subreddit.get_hot
