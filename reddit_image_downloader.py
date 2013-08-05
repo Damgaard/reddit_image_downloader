@@ -25,12 +25,12 @@ Usage:
     reddit_image_downloader.py --gui
     reddit_image_downloader.py <subreddit> ... [--hot|--new|--rising] [--nsfw]
                                 [--limit=<n>] [--size=<img_size>]
-                                [--reddit_name|--reddit_over_id]
+                                [--reddit_name|--reddit_over_hash]
                                 [--savedir=<n>]
     reddit_image_downloader.py <subreddit> ... (--top|--controversial) [--nsfw]
                                 [--limit=<n>] [--time=<period>]
                                 [--size=<img_size>]
-                                [--reddit_name|--reddit_over_id]
+                                [--reddit_name|--reddit_over_hash]
                                 [--savedir=<n>]
 
 Options:
@@ -47,7 +47,7 @@ Options:
  --time=<period>    The time period to look at [default: day].
  --size=<img_size>  The size of the images to download [default: original].
  --reddit_name      Always set the name to the reddit title
- --reddit_over_id   Set name to reddit title, if image is untitled on imgur.
+ --reddit_over_hash   Set name to reddit title, if image is untitled on imgur.
  --savedir=<n>      The directory to save downloaded files in [default 25]
 
 """
