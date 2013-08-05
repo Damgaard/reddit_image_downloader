@@ -52,8 +52,8 @@ Options:
 
 """
 
-import shutil
 import os
+import shutil
 from urlparse import urlparse
 
 from docopt import docopt
@@ -82,19 +82,18 @@ def download_images(arguments, view):
     subreddit = get_subreddit(reddit, arguments)
     listing = get_listing(subreddit, arguments)
     params = {'t': arguments['--time']}
-    for sub in listing(limit=arguments['--limit'], url_data=params):
-        if not can_be_processed(sub, arguments, view):
+    for submission in listing(limit=arguments['--limit'], params=params):
+        if not can_be_processed(submission, arguments, view):
             continue
-        img_hash = get_img_hash(sub.url)
+        img_hash = get_img_hash(submission.url)
         try:
-            new_image = pyimgur.download_image(img_hash,
-                                               size=arguments['--size'])
+            image = pyimgur.download_image(img_hash, size=arguments['--size'])
         except pyimgur.errors.Code404:
             continue
-        if arguments['--reddit_name'] or ((new_image.startswith(img_hash)
-                                           and arguments['--reddit_over_id'])):
-            new_image = rename_image(new_image, sub)
-        move_image(new_image, arguments)
+        if arguments['--reddit_name'] or ((image.startswith(img_hash) and
+                                           arguments['--reddit_over_hash'])):
+            image = rename_image(image, submission)
+        move_image(image, arguments)
 
 
 def get_subreddit(reddit, arguments):
@@ -175,12 +174,10 @@ def move_image(new_image, arguments):
 
 def process_arguments(arguments):
     """Process the arguments, so they can be used."""
-    arguments['--time'] = arguments['--time'].lower()
-    arguments['--size'] = arguments['--size'].lower()
     if arguments['--limit'].lower() == 'none':
         arguments['--limit'] = MAX_SUBMISSIONS
     else:
-        arguments['--limit'] = int(arguments['--limit'])
+        arguments['--limit'] = min(int(arguments['--limit']), MAX_SUBMISSIONS)
     if arguments['--savedir'] is None:
         arguments['--savedir'] = os.path.abspath('.')
 

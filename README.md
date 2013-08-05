@@ -1,9 +1,10 @@
-# Subreddit Image Downloader
+# Reddit Image Downloader
 
 Simplifies downloading images from subreddits.
 
 # Usage
 
+```
 reddit\_image\_downloader.py -h | --help
 reddit\_image\_downloader.py --gui
 reddit\_image\_downloader.py <subreddit> ... [--hot|--new|--rising] [--nsfw]
