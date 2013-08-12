@@ -1,0 +1,5 @@
+praw
+docopt
+pyimgur>=0.5.1
+pytest
+requests

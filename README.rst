@@ -40,11 +40,12 @@ Usage
 Dependencies
 ------------
 
-docopt, praw and pyimgur. Install them with pip.
+Reddit\_Image\_Downloader's dependencies can be found in requirements.txt. To
+install all dependencies.
 
 .. code-block:: bash
 
-  $ pip install docopt, praw, pyimgur
+  $ pip install -r requirements.txt
 
 License
 -------
