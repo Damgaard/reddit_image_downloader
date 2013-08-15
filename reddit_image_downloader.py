@@ -52,7 +52,7 @@ def connect_to_reddit(useragent):
 
 
 def is_direct_image_link(url):
-    """Return whether the url a direct link to an image."""
+    """Return whether the url is a direct link to an image."""
     image_extensions = ('jpg', 'jpeg', 'png', 'gif', 'apng', 'tiff', 'bmp')
     return url.rpartition('.')[-1].lower() in image_extensions
 
@@ -60,8 +60,11 @@ def is_direct_image_link(url):
 def imgur_download(imgur_session, name, url):
     """Download the Imgur image located at url and save it as name.
 
-    If it's an album subsequent images will have an underscore and a sequential
-    number as a suffix."""
+    If it's an album and it has more than one image, then each image will be
+    saved as the name with a suffix. Which consists of a underscore followed by
+    the place of the image in the album. I.e. the suffix will be _1 for the
+    first image, _2 for the second and so forth.
+    """
     obj = imgur_session.get_at_url(url)
     images = obj.images if isinstance(obj, pyimgur.Album) else [obj]
     results = []
@@ -72,7 +75,7 @@ def imgur_download(imgur_session, name, url):
 
 
 def sanitize_filename_windows(name):
-    """Turn the filename into a legal filename.
+    """Turn the filename into a legal windows filename.
 
     See http://support.grouplogic.com/?p=1607
     """
@@ -85,7 +88,7 @@ def sanitize_filename_windows(name):
 
 
 def get_submissions(reddit_session, subreddits, listing='new', limit=3):
-    """Return the limit submissions made to subreddits' listing."""
+    """Return the limit submissions made to subreddit's listing."""
     multi_reddit_name = "+".join(subreddits)
     multi_reddit = reddit_session.get_subreddit(multi_reddit_name)
     # TODO. See if there is a way to optimize this. Looks repetitive
