@@ -16,7 +16,7 @@ from authentication import IMGUR_CLIENT_ID, REDDIT_USERAGENT
 def main():
     im = connect_to_imgur(IMGUR_CLIENT_ID)
     r = connect_to_reddit(REDDIT_USERAGENT)
-    subreddit = ['cats', 'funny', 'pics']
+    subreddit = ('cats', 'funny', 'pics')
     submissions = get_submissions(r, subreddit)
     new_images = []
     for submission in submissions:
@@ -30,9 +30,7 @@ def main():
                     outfile.write(binary_image)
                 new_images.append(name)
             elif im.is_imgur_url(submission.url):
-                just_downloaded = imgur_download(im, name, submission.url)
-                for image in just_downloaded:
-                    new_images.append(image)
+                new_images += imgur_download(im, name, submission.url)
         except Exception:
             print "-------------Error------------------"
             traceback.print_exc()
@@ -82,8 +80,7 @@ def sanitize_filename_windows(name):
     name = name.encode('ascii', 'ignore')
     name = name.replace('"', "'")
     name = name.replace(" ", "_")  # Personal preference
-    for ch in "^/?<>\:*|”":
-        name = name.replace(ch, "")
+    name = "".join(ch for ch in name if ch not in "^/?<>\:*|”")
     return name[:255]
 
 
