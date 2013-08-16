@@ -1,11 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Reddit image downloader
+
+Downloads images from a subreddit.
+
+Usage:
+    reddit_image_downloader.py -h | --help
+    reddit_image_downloader.py <subreddit> ... [--hot|--new|--rising]
+                                [--limit=<n>]
+    reddit_image_downloader.py <subreddit> ... (--top|--controversial)
+                                [--limit=<n>] [--time=<period>]
+
+Options:
+ -h --help          Show help screen.
+ --subreddit        The subreddit(s) to download images from.
+ --hot              Get the hottest images (default) from the subreddit.
+ --new              Get the newest images from the subreddit.
+ --rising           Get the rising images from the subreddit.
+ --controversial    Get the controversial images from the subreddit.
+ --top              Get the top images from subreddit.
+ --limit=<n>        The number of images to download [default: 25].
+ --time=<period>    The time period to look at [default: day].
+
+"""
+
 from __future__ import unicode_literals
 
 import sys
 import traceback
 
+from docopt import docopt
 import praw
 import pyimgur
 import requests
@@ -13,11 +39,24 @@ import requests
 from authentication import IMGUR_CLIENT_ID, REDDIT_USERAGENT
 
 
+def parse_commandline_args():
+    """Verify and parse the commandline arguments."""
+    options = docopt(__doc__)
+    subreddits = options['<subreddit>']
+    listing_options = ('hot', 'top', 'controversial', 'rising', 'new')
+    listing = next((op for op in listing_options if options["--" + op]), 'hot')
+    time_options = ('hour', 'day', 'week', 'month', 'year', 'all')
+    time = options['--time'] if options['--time'] in time_options else 'day'
+    limit = int(options['--limit'])
+    return subreddits, listing, time, limit
+
+
 def main():
+    subreddits, listing, time, limit = parse_commandline_args()
     im = connect_to_imgur(IMGUR_CLIENT_ID)
     r = connect_to_reddit(REDDIT_USERAGENT)
-    subreddit = ('cats', 'funny', 'pics')
-    submissions = get_submissions(r, subreddit)
+    submissions = get_submissions(r, subreddits, listing=listing, time=time,
+                                  limit=limit)
     new_images = []
     for submission in submissions:
         try:
@@ -87,7 +126,8 @@ def sanitize_filename_windows(name):
     return name[:255]
 
 
-def get_submissions(reddit_session, subreddits, listing='new', limit=3):
+def get_submissions(reddit_session, subreddits, listing, time=None,
+                    limit=0):
     """Return the limit submissions made to subreddit's listing."""
     multi_reddit_name = "+".join(subreddits)
     multi_reddit = reddit_session.get_subreddit(multi_reddit_name)
@@ -97,8 +137,9 @@ def get_submissions(reddit_session, subreddits, listing='new', limit=3):
                         'new': multi_reddit.get_new,
                         'rising': multi_reddit.get_rising,
                         'top': multi_reddit.get_top}
-    method = listings_methods.get(listing, multi_reddit.get_new)
-    return list(method(limit=limit))
+    # Assume listing is always set to a valid option
+    method = listings_methods.get(listing)
+    return list(method(limit=limit, params={'t': time}))
 
 
 if __name__ == '__main__':
