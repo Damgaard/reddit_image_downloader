@@ -39,6 +39,9 @@ import requests
 from authentication import IMGUR_CLIENT_ID, REDDIT_USERAGENT
 
 
+__version__ = '0.2'
+
+
 def parse_commandline_args():
     """Verify and parse the commandline arguments."""
     options = docopt(__doc__)
