@@ -39,7 +39,7 @@ def test_connect_to_reddit():
 def test_get_submissions():
     subreddits = ['pics', 'cats', 'gifs', 'funny']
     reddit_session = connect_to_reddit(REDDIT_USERAGENT)
-    posts = get_submissions(reddit_session, subreddits)
+    posts = get_submissions(reddit_session, subreddits, 'hot')
     assert posts
 
 
