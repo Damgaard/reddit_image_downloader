@@ -1,6 +1,9 @@
 Reddit Image Downloader
 =======================
 
+.. image:: https://travis-ci.org/Damgaard/reddit_image_downloader.png
+        :target: https://travis-ci.org/Damgaard/reddit_image_downloader
+
 Simplifies downloading images from subreddits.
 
 Usage
