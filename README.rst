@@ -33,7 +33,7 @@ Usage
 Dependencies
 ------------
 
-Reddit\_Image\_Downloader's dependencies can be found in requirements.txt. To
+deddit\_image\_downloader's dependencies can be found in requirements.txt. To
 install all dependencies.
 
 .. code-block:: bash
